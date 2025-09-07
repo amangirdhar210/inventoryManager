@@ -2,8 +2,11 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+	"strings"
 
+	"github.com/amangirdhar210/inventory-manager/internal/core/domain"
 	"github.com/amangirdhar210/inventory-manager/internal/core/ports"
 	"github.com/gorilla/mux"
 )
@@ -118,20 +121,24 @@ func (h *HTTPHandler) UpdateProductPrice(w http.ResponseWriter, r *http.Request)
 		NewPrice float64 `json:"price"`
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	err = h.service.UpdateProductPrice(id, req.NewPrice)
+	err := h.service.UpdateProductPrice(id, req.NewPrice)
+
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		if errors.Is(err, domain.ErrProductNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		} else if strings.Contains(err.Error(), "price must be greater than zero") {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		} else {
+			http.Error(w, "An internal server error occurred", http.StatusInternalServerError)
+		}
 		return
 	}
-	respondWithJSON(w, http.StatusOK, nil)
 }
-
 func (h *HTTPHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) {
 	products, err := h.service.GetAllProducts()
 	if err != nil {
