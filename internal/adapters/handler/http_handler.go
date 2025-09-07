@@ -71,7 +71,7 @@ func (h *HTTPHandler) SellProductUnits(w http.ResponseWriter, r *http.Request) {
 		if err.Error() == "insufficient stock" {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		} else {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusNotFound)
 		}
 		return
 	}
@@ -92,7 +92,7 @@ func (h *HTTPHandler) RestockProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	_, err := h.service.RestockProduct(id, req.Quantity)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 	respondWithJSON(w, http.StatusOK, nil)
