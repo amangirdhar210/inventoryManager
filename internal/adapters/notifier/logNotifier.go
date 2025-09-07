@@ -15,10 +15,10 @@ func NewLogNotifier() ports.Notifier {
 
 func (notifier *logNotifier) NotifyLowStock(product *domain.Product) {
 	log.Printf(
-		`ALERT: LOW STOCK \n
-		Product Id: %s \n
-		Product Name: %s \n
-		Available Quantity: %d \n
-		Please restock soon to avoid running out of stock.\n`,
+		`ALERT: LOW STOCK
+		Product Id: %s
+		Product Name: %s
+		Available Quantity: %d
+		Please restock soon to avoid running out of stock.`,
 		product.Id, product.Name, product.Quantity)
 }

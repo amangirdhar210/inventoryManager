@@ -7,6 +7,7 @@ type InventoryService interface {
 	GetProduct(id string) (*domain.Product, error)
 	SellProductUnits(id string, quantity int) (*domain.Product, error)
 	RestockProduct(id string, quantity int) (*domain.Product, error)
+	UpdateProductPrice(id string, newPrice float64) error
 	GetAllProducts() ([]domain.Product, error)
 	DeleteProduct(id string) error
 	GetInventoryValue() (float64, error)

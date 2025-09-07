@@ -2,19 +2,16 @@ package domain
 
 import (
 	"errors"
-	"time"
 
 	"github.com/amangirdhar210/inventory-manager/config"
 	"github.com/google/uuid"
 )
 
 type Product struct {
-	Id        string
-	Name      string
-	Price     float64
-	Quantity  int
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Id       string
+	Name     string
+	Price    float64
+	Quantity int
 }
 
 func (product *Product) Validate() error {
@@ -31,12 +28,10 @@ func (product *Product) Validate() error {
 
 func CreateNewProduct(name string, price float64, quantity int) (*Product, error) {
 	product := &Product{
-		Id:        uuid.New().String(),
-		Name:      name,
-		Price:     price,
-		Quantity:  quantity,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		Id:       uuid.New().String(),
+		Name:     name,
+		Price:    price,
+		Quantity: quantity,
 	}
 
 	if err := product.Validate(); err != nil {
@@ -68,7 +63,6 @@ func (product *Product) Restock(qtyToAdd int) error {
 		return errors.New("restock amount must be positive")
 	}
 	product.Quantity += qtyToAdd
-	product.UpdatedAt = time.Now()
 	return nil
 }
 
@@ -77,7 +71,6 @@ func (product *Product) UpdateProductPrice(newPrice float64) error {
 		return errors.New("price must be greater than zero")
 	}
 	product.Price = newPrice
-	product.UpdatedAt = time.Now()
 	return nil
 }
 

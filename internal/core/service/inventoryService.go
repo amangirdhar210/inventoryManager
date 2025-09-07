@@ -106,3 +106,23 @@ func (invService *inventoryService) GetInventoryValue() (float64, error) {
 	}
 	return totalValue, nil
 }
+
+func (invService *inventoryService) UpdateProductPrice(id string, newPrice float64) error {
+	product, err := invService.repo.FindById(id)
+	if err != nil {
+		return fmt.Errorf("couldnot find product with id: %s", id)
+	}
+
+	err = product.UpdateProductPrice(newPrice)
+	if err != nil {
+		return fmt.Errorf("failed to update price of the product")
+	}
+
+	err = invService.repo.Update(product)
+	if err != nil {
+		return fmt.Errorf("couldnot save the updated price")
+	}
+
+	return nil
+
+}

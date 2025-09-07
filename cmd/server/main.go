@@ -34,6 +34,7 @@ func main() {
 	router.HandleFunc("/products/{id}", inventoryHandler.GetProduct).Methods("GET")
 	router.HandleFunc("/products/{id}/sell", inventoryHandler.SellProductUnits).Methods("POST")
 	router.HandleFunc("/products/{id}/restock", inventoryHandler.RestockProduct).Methods("POST")
+	router.HandleFunc("/products/{id}", inventoryHandler.UpdateProductPrice).Methods("PUT")
 	router.HandleFunc("/products/{id}", inventoryHandler.DeleteProduct).Methods("DELETE")
 	router.HandleFunc("/products", inventoryHandler.GetAllProducts).Methods("GET")
 	router.HandleFunc("/inventory/value", inventoryHandler.GetInventoryValue).Methods("GET")
