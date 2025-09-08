@@ -7,15 +7,15 @@ import (
 	"strings"
 
 	"github.com/amangirdhar210/inventory-manager/internal/core/domain"
-	"github.com/amangirdhar210/inventory-manager/internal/core/ports"
+	"github.com/amangirdhar210/inventory-manager/internal/core/service"
 	"github.com/gorilla/mux"
 )
 
 type HTTPHandler struct {
-	service ports.InventoryService
+	service service.InventoryService
 }
 
-func NewHTTPHandler(service ports.InventoryService) *HTTPHandler {
+func NewHTTPHandler(service service.InventoryService) *HTTPHandler {
 	return &HTTPHandler{
 		service: service,
 	}
@@ -78,7 +78,7 @@ func (h *HTTPHandler) SellProductUnits(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	respondWithJSON(w, http.StatusOK, nil)
+	respondWithJSON(w, http.StatusOK, map[string]string{"message": "product sold successfully"})
 }
 
 func (h *HTTPHandler) RestockProduct(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +98,7 @@ func (h *HTTPHandler) RestockProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	respondWithJSON(w, http.StatusOK, nil)
+	respondWithJSON(w, http.StatusOK, map[string]string{"message": "the product has been restocked"})
 }
 
 func (h *HTTPHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +110,7 @@ func (h *HTTPHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	respondWithJSON(w, http.StatusOK, nil)
+	respondWithJSON(w, http.StatusOK, map[string]string{"message": "product deleted successfully"})
 }
 
 func (h *HTTPHandler) UpdateProductPrice(w http.ResponseWriter, r *http.Request) {
@@ -138,6 +138,7 @@ func (h *HTTPHandler) UpdateProductPrice(w http.ResponseWriter, r *http.Request)
 		}
 		return
 	}
+	respondWithJSON(w, http.StatusOK, map[string]string{"message": "product price updated successfully"})
 }
 func (h *HTTPHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) {
 	products, err := h.service.GetAllProducts()

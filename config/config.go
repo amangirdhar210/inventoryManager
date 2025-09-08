@@ -1,3 +1,3 @@
 package config
 
-var ThresholdAlertQty int = 10
+const ThresholdAlertQty int = 10

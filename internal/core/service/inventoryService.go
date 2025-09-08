@@ -12,7 +12,7 @@ type inventoryService struct {
 	notifier ports.Notifier
 }
 
-func NewInventoryService(repo ports.ProductRepository, notifier ports.Notifier) ports.InventoryService {
+func NewInventoryService(repo ports.ProductRepository, notifier ports.Notifier) InventoryService {
 	return &inventoryService{
 		repo:     repo,
 		notifier: notifier,
