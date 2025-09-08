@@ -6,10 +6,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/amangirdhar210/inventory-manager/config"
 	"github.com/amangirdhar210/inventory-manager/internal/adapters/handler"
 	"github.com/amangirdhar210/inventory-manager/internal/adapters/notifier"
 	"github.com/amangirdhar210/inventory-manager/internal/adapters/repository"
 	"github.com/amangirdhar210/inventory-manager/internal/core/service"
+	"github.com/amangirdhar210/inventory-manager/utils/auth"
 	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -19,26 +21,33 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
-
 	defer db.Close()
-	inventoryRepo := repository.NewSQLiteRepository(db)
+
+	sqliteRepo := repository.NewSQLiteRepository(db)
 	logNotifier := notifier.NewLogNotifier()
+	tokenGenerator := auth.NewJWTGenerator(config.JWTSecretKey)
 
-	inventoryService := service.NewInventoryService(inventoryRepo, logNotifier)
+	inventoryService := service.NewInventoryService(sqliteRepo, logNotifier)
+	authService := service.NewAuthService(sqliteRepo, tokenGenerator)
 
-	inventoryHandler := handler.NewHTTPHandler(inventoryService)
+	inventoryHandler := handler.NewHTTPHandler(inventoryService, authService)
 
 	router := mux.NewRouter()
 
-	router.HandleFunc("/products", inventoryHandler.AddProduct).Methods("POST")
-	router.HandleFunc("/products/{id}", inventoryHandler.GetProduct).Methods("GET")
-	router.HandleFunc("/products/{id}/sell", inventoryHandler.SellProductUnits).Methods("POST")
-	router.HandleFunc("/products/{id}/restock", inventoryHandler.RestockProduct).Methods("POST")
-	router.HandleFunc("/products/{id}/price", inventoryHandler.UpdateProductPrice).Methods("PUT")
-	router.HandleFunc("/products/{id}", inventoryHandler.DeleteProduct).Methods("DELETE")
-	router.HandleFunc("/products", inventoryHandler.GetAllProducts).Methods("GET")
+	router.HandleFunc("/login", inventoryHandler.Login).Methods("POST")
+	router.HandleFunc("/logout", inventoryHandler.Logout).Methods("POST")
 
-	router.HandleFunc("/inventory/value", inventoryHandler.GetInventoryValue).Methods("GET")
+	apiRouter := router.PathPrefix("/api").Subrouter()
+	apiRouter.Use(inventoryHandler.AuthMiddleware)
+
+	apiRouter.HandleFunc("/products", inventoryHandler.AddProduct).Methods("POST")
+	apiRouter.HandleFunc("/products/{id}", inventoryHandler.GetProduct).Methods("GET")
+	apiRouter.HandleFunc("/products/{id}/sell", inventoryHandler.SellProductUnits).Methods("POST")
+	apiRouter.HandleFunc("/products/{id}/restock", inventoryHandler.RestockProduct).Methods("POST")
+	apiRouter.HandleFunc("/products/{id}/price", inventoryHandler.UpdateProductPrice).Methods("PUT")
+	apiRouter.HandleFunc("/products/{id}", inventoryHandler.DeleteProduct).Methods("DELETE")
+	apiRouter.HandleFunc("/products", inventoryHandler.GetAllProducts).Methods("GET")
+	apiRouter.HandleFunc("/inventory/value", inventoryHandler.GetInventoryValue).Methods("GET")
 
 	server := &http.Server{
 		Handler:      router,

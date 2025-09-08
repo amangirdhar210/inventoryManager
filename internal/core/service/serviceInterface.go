@@ -12,3 +12,7 @@ type InventoryService interface {
 	DeleteProduct(id string) error
 	GetInventoryValue() (float64, error)
 }
+
+type AuthService interface {
+	Login(email, password string) (string, error)
+}
