@@ -30,7 +30,7 @@ func setupTestDB(t *testing.T) *sql.DB {
 	return db
 }
 
-func TestSqliteRepository_SaveAndFindById(t *testing.T) {
+func TestSqliteRepository_SaveAndThenCheckUsingFindById(t *testing.T) {
 	db := setupTestDB(t)
 	defer db.Close()
 
@@ -52,7 +52,7 @@ func TestSqliteRepository_SaveAndFindById(t *testing.T) {
 	}
 }
 
-func TestSqliteRepository_FindById_NotFound(t *testing.T) {
+func TestSqliteRepository_FindByIdWhenNotFound(t *testing.T) {
 	db := setupTestDB(t)
 	defer db.Close()
 
@@ -111,7 +111,7 @@ func TestSqliteRepository_DeleteById(t *testing.T) {
 }
 
 func TestSqliteRepository_ListAll(t *testing.T) {
-	t.Run("list_all_empty", func(t *testing.T) {
+	t.Run("list all when empty", func(t *testing.T) {
 		db := setupTestDB(t)
 		defer db.Close()
 		repo := NewSQLiteRepository(db)
@@ -125,7 +125,7 @@ func TestSqliteRepository_ListAll(t *testing.T) {
 		}
 	})
 
-	t.Run("list_all_with_products", func(t *testing.T) {
+	t.Run("list all when products exists", func(t *testing.T) {
 		db := setupTestDB(t)
 		defer db.Close()
 		repo := NewSQLiteRepository(db)
