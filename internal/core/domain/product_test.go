@@ -166,3 +166,5 @@ func TestProduct_IsLowOnStock(t *testing.T) {
 		})
 	}
 }
+
+//implement testing for UpdateProductPrice
