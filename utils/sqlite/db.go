@@ -1,10 +1,12 @@
-package main
+package sqlite
 
 import (
 	"database/sql"
 	"log"
 
+	"github.com/amangirdhar210/inventory-manager/config"
 	"github.com/amangirdhar210/inventory-manager/internal/core/domain"
+	"github.com/amangirdhar210/inventory-manager/utils/auth"
 	"github.com/google/uuid"
 )
 
@@ -43,7 +45,7 @@ func SetupDatabase(dbName string) (*sql.DB, error) {
 
 func seedAdmin(db *sql.DB) {
 	var count int
-	row := db.QueryRow("SELECT COUNT(*) FROM managers WHERE email = ?", "admin@example.com")
+	row := db.QueryRow("SELECT COUNT(*) FROM managers WHERE email = ?", config.AdminEmail)
 	if err := row.Scan(&count); err != nil {
 		log.Printf("Could not check for admin user: %v", err)
 		return
@@ -52,13 +54,16 @@ func seedAdmin(db *sql.DB) {
 	if count == 0 {
 		admin := &domain.Manager{
 			Id:       uuid.NewString(),
-			Email:    "admin@example.com",
-			Password: "password123",
+			Email:    config.AdminEmail,
+			Password: "",
 		}
-		if err := admin.HashPassword(); err != nil {
+
+		hashedAdminPassword, err := auth.HashPassword(config.AdminPassword)
+		if err != nil {
 			log.Printf("Could not hash admin password: %v", err)
 			return
 		}
+		admin.Password = hashedAdminPassword
 
 		stmt, err := db.Prepare("INSERT INTO managers(id, email, password) VALUES(?,?,?)")
 		if err != nil {
@@ -73,7 +78,5 @@ func seedAdmin(db *sql.DB) {
 			return
 		}
 		log.Println("Admin user seeded successfully.")
-		log.Println("Email: admin@example.com")
-		log.Println("Password: password123")
 	}
 }
