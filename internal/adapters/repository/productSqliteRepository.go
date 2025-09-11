@@ -6,17 +6,17 @@ import (
 	"github.com/amangirdhar210/inventory-manager/internal/core/domain"
 )
 
-type sqliteRepository struct {
+type productRepository struct {
 	db *sql.DB
 }
 
-func NewSQLiteRepository(db *sql.DB) *sqliteRepository {
-	return &sqliteRepository{
+func NewProductRepository(db *sql.DB) *productRepository {
+	return &productRepository{
 		db: db,
 	}
 }
 
-func (repo *sqliteRepository) FindById(id string) (*domain.Product, error) {
+func (repo *productRepository) FindById(id string) (*domain.Product, error) {
 	row := repo.db.QueryRow("SELECT id, name, price, quantity FROM products where id=?", id)
 
 	var product domain.Product
@@ -30,7 +30,7 @@ func (repo *sqliteRepository) FindById(id string) (*domain.Product, error) {
 	return &product, nil
 }
 
-func (repo *sqliteRepository) Save(product *domain.Product) error {
+func (repo *productRepository) Save(product *domain.Product) error {
 	statement, err := repo.db.Prepare("INSERT INTO products(id, name, price,quantity) VALUES(?,?,?,?)")
 	if err != nil {
 		return domain.ErrRepository
@@ -44,7 +44,7 @@ func (repo *sqliteRepository) Save(product *domain.Product) error {
 	return nil
 }
 
-func (repo *sqliteRepository) Update(product *domain.Product) error {
+func (repo *productRepository) Update(product *domain.Product) error {
 	statement, err := repo.db.Prepare("UPDATE products SET name=?, price=?, quantity=? WHERE id =?")
 	if err != nil {
 		return domain.ErrRepository
@@ -57,7 +57,7 @@ func (repo *sqliteRepository) Update(product *domain.Product) error {
 	return nil
 }
 
-func (repo *sqliteRepository) DeleteById(id string) error {
+func (repo *productRepository) DeleteById(id string) error {
 	statement, err := repo.db.Prepare("DELETE FROM products WHERE id =?")
 	if err != nil {
 		return domain.ErrRepository
@@ -76,7 +76,7 @@ func (repo *sqliteRepository) DeleteById(id string) error {
 	return nil
 }
 
-func (repo *sqliteRepository) ListAll() ([]domain.Product, error) {
+func (repo *productRepository) ListAll() ([]domain.Product, error) {
 	rows, err := repo.db.Query("SELECT id, name, price, quantity FROM products")
 	if err != nil {
 		return nil, domain.ErrRepository
@@ -95,18 +95,4 @@ func (repo *sqliteRepository) ListAll() ([]domain.Product, error) {
 		return nil, domain.ErrRepository
 	}
 	return products, nil
-}
-
-func (repo *sqliteRepository) FindByEmail(email string) (*domain.Manager, error) {
-	row := repo.db.QueryRow("SELECT id, email, password FROM managers WHERE email = ?", email)
-
-	manager := &domain.Manager{}
-	err := row.Scan(&manager.Id, &manager.Email, &manager.Password)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, domain.ErrInvalidCredentials
-		}
-		return nil, domain.ErrRepository
-	}
-	return manager, nil
 }
