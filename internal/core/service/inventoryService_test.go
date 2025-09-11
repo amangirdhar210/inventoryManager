@@ -121,7 +121,7 @@ func TestInventoryService_AddProduct(t *testing.T) {
 
 func TestInventoryService_GetProduct(t *testing.T) {
 	repo := newMockProductRepository()
-	p, _ := domain.CreateNewProduct("Test Book", 25.50, 50)
+	p, _ := domain.NewProduct("Test Book", 25.50, 50)
 	repo.Save(p)
 
 	tests := []struct {
@@ -150,7 +150,7 @@ func TestInventoryService_GetProduct(t *testing.T) {
 }
 
 func TestInventoryService_SellProductUnits(t *testing.T) {
-	p, _ := domain.CreateNewProduct("Monitor", 300, 20)
+	p, _ := domain.NewProduct("Monitor", 300, 20)
 
 	tests := []struct {
 		name           string
@@ -184,7 +184,7 @@ func TestInventoryService_SellProductUnits(t *testing.T) {
 				productID = "wrong-id"
 			}
 
-			_, err := service.SellProductUnits(productID, tt.sellQuantity)
+			err := service.SellProductUnits(productID, tt.sellQuantity)
 
 			if (err != nil) != tt.expectErr {
 				t.Errorf("SellProductUnits() error = %v, expectErr %v", err, tt.expectErr)
@@ -205,7 +205,7 @@ func TestInventoryService_SellProductUnits(t *testing.T) {
 }
 
 func TestInventoryService_RestockProduct(t *testing.T) {
-	p, _ := domain.CreateNewProduct("Keyboard", 75, 10)
+	p, _ := domain.NewProduct("Keyboard", 75, 10)
 
 	tests := []struct {
 		name          string
@@ -227,7 +227,7 @@ func TestInventoryService_RestockProduct(t *testing.T) {
 			repo.shouldError = tt.repoShould
 			service := NewInventoryService(repo, &mockNotifier{})
 
-			_, err := service.RestockProduct(p.Id, tt.restockQty)
+			err := service.RestockProduct(p.Id, tt.restockQty)
 
 			if (err != nil) != tt.expectErr {
 				t.Errorf("RestockProduct() error = %v, expectErr %v", err, tt.expectErr)
@@ -244,8 +244,8 @@ func TestInventoryService_RestockProduct(t *testing.T) {
 }
 
 func TestInventoryService_GetAllProducts(t *testing.T) {
-	p1, _ := domain.CreateNewProduct("Product A", 10, 1)
-	p2, _ := domain.CreateNewProduct("Product B", 20, 2)
+	p1, _ := domain.NewProduct("Product A", 10, 1)
+	p2, _ := domain.NewProduct("Product B", 20, 2)
 
 	tests := []struct {
 		name       string
@@ -300,7 +300,7 @@ func TestInventoryService_GetAllProducts(t *testing.T) {
 }
 
 func TestInventoryService_DeleteProduct(t *testing.T) {
-	p, _ := domain.CreateNewProduct("ToDelete", 1, 1)
+	p, _ := domain.NewProduct("ToDelete", 1, 1)
 
 	tests := []struct {
 		name      string
@@ -357,8 +357,8 @@ func TestInventoryService_DeleteProduct(t *testing.T) {
 }
 
 func TestInventoryService_GetInventoryValue(t *testing.T) {
-	p1, _ := domain.CreateNewProduct("Valuable", 10.50, 10)
-	p2, _ := domain.CreateNewProduct("Cheap", 1.00, 100)
+	p1, _ := domain.NewProduct("Valuable", 10.50, 10)
+	p2, _ := domain.NewProduct("Cheap", 1.00, 100)
 
 	tests := []struct {
 		name      string
@@ -409,27 +409,3 @@ func TestInventoryService_GetInventoryValue(t *testing.T) {
 		})
 	}
 }
-
-// func TestInventoryService_UpdateProductPrice(t *testing.T) {
-// 	p, _ := domain.CreateNewProduct("Mouse", 50, 5)
-
-// 	tests := []struct {
-// 		name       string
-// 		productID  string
-// 		newPrice   float64
-// 		repoShould bool
-// 		expectErr  bool
-// 		wantPrice  float64
-// 	}{
-// 		{"success", p.Id, 55.50, false, false, 55.50},
-// 	}
-
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			repo := newMockProductRepository()
-// 			clone := *p
-// 			repo.Save(&clone)
-
-// 		})
-// 	}
-// }
