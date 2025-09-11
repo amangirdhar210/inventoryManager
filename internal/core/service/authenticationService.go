@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/amangirdhar210/inventory-manager/internal/core/domain"
 	"github.com/amangirdhar210/inventory-manager/internal/core/ports"
+	"github.com/amangirdhar210/inventory-manager/utils/auth"
 )
 
 type authService struct {
@@ -23,7 +24,7 @@ func (s *authService) Login(email, password string) (string, error) {
 		return "", domain.ErrInvalidCredentials
 	}
 
-	if err := manager.CheckPassword(password); err != nil {
+	if err := auth.CheckPassword(manager.Password, password); err != nil {
 		return "", domain.ErrInvalidCredentials
 	}
 
