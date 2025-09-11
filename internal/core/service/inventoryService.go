@@ -20,7 +20,7 @@ func NewInventoryService(repo ports.ProductRepository, notifier ports.Notifier) 
 }
 
 func (invService *inventoryService) AddProduct(name string, price float64, quantity int) (*domain.Product, error) {
-	product, err := domain.CreateNewProduct(name, price, quantity)
+	product, err := domain.NewProduct(name, price, quantity)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new product : %w", err)
 	}
@@ -40,41 +40,44 @@ func (invService *inventoryService) GetProduct(id string) (*domain.Product, erro
 	return product, nil
 }
 
-func (invService *inventoryService) SellProductUnits(id string, quantity int) (*domain.Product, error) {
+func (invService *inventoryService) SellProductUnits(id string, quantity int) error {
 	product, err := invService.repo.FindById(id)
 	if err != nil {
-		return nil, fmt.Errorf("could not find the product for sale: %w", err)
+		return fmt.Errorf("could not find the product for sale: %w", err)
 	}
-
-	if err := product.SellUnits(quantity); err != nil {
-		return nil, fmt.Errorf("failed to sell the product: %w", err)
+	if quantity <= 0 {
+		return fmt.Errorf("invalid input quantity")
+	} else if product.Quantity < quantity {
+		return fmt.Errorf("insufficient stock")
 	}
+	product.Quantity -= quantity
 
 	if err := invService.repo.Update(product); err != nil {
-		return nil, fmt.Errorf("failed to update product stock after sale: %w", err)
+		return fmt.Errorf("failed to update product stock after sale: %w", err)
 	}
 
 	if product.IsLowOnStock() {
 		invService.notifier.NotifyLowStock(product)
 	}
-	return product, nil
+	return nil
 }
 
-func (invService *inventoryService) RestockProduct(id string, quantity int) (*domain.Product, error) {
+func (invService *inventoryService) RestockProduct(id string, quantity int) error {
 	product, err := invService.repo.FindById(id)
 	if err != nil {
-		return nil, fmt.Errorf("could not find the product to be restocked: %w", err)
+		return fmt.Errorf("could not find the product to be restocked: %w", err)
 	}
 
-	if err := product.Restock(quantity); err != nil {
-		return nil, fmt.Errorf("failed to restock the product: %w", err)
+	if quantity <= 0 {
+		return fmt.Errorf("invalid input quantity")
 	}
+	product.Quantity += quantity
 
 	if err := invService.repo.Update(product); err != nil {
-		return nil, fmt.Errorf("failed to update product stock after restock: %w", err)
+		return fmt.Errorf("failed to update product stock after restock: %w", err)
 	}
 
-	return product, nil
+	return nil
 
 }
 
@@ -112,13 +115,13 @@ func (invService *inventoryService) UpdateProductPrice(id string, newPrice float
 	if err != nil {
 		return fmt.Errorf("%w: could not find product with id %s", domain.ErrProductNotFound, id)
 	}
-
-	err = product.UpdateProductPrice(newPrice)
-	if err != nil {
-		return fmt.Errorf("failed to update price of the product: %w", err)
+	if newPrice <= 0 {
+		return fmt.Errorf("invalid price entered")
 	}
+	product.Price = newPrice
 
 	err = invService.repo.Update(product)
+
 	if err != nil {
 		return fmt.Errorf("could not save the updated price: %w", err)
 	}
