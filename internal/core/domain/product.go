@@ -26,7 +26,7 @@ func (product *Product) Validate() error {
 	}
 }
 
-func CreateNewProduct(name string, price float64, quantity int) (*Product, error) {
+func NewProduct(name string, price float64, quantity int) (*Product, error) {
 	product := &Product{
 		Id:       uuid.New().String(),
 		Name:     name,
@@ -42,36 +42,6 @@ func CreateNewProduct(name string, price float64, quantity int) (*Product, error
 
 func isGreaterThanZero[T int | float64](AmountOrQuantity T) bool {
 	return AmountOrQuantity > 0
-}
-
-func (product *Product) SellUnits(qtyToSell int) error {
-	if !isGreaterThanZero(qtyToSell) {
-		return errors.New("the quantity to be sold must be greater than zero")
-	}
-
-	if product.Quantity < qtyToSell {
-		return errors.New("insufficient stock")
-	}
-
-	product.Quantity -= qtyToSell
-
-	return nil
-}
-
-func (product *Product) Restock(qtyToAdd int) error {
-	if !isGreaterThanZero(qtyToAdd) {
-		return errors.New("restock amount must be positive")
-	}
-	product.Quantity += qtyToAdd
-	return nil
-}
-
-func (product *Product) UpdateProductPrice(newPrice float64) error {
-	if !isGreaterThanZero(newPrice) {
-		return errors.New("price must be greater than zero")
-	}
-	product.Price = newPrice
-	return nil
 }
 
 func (product *Product) IsLowOnStock() bool {
