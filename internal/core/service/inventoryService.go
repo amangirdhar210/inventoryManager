@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 
+	"github.com/amangirdhar210/inventory-manager/config"
 	"github.com/amangirdhar210/inventory-manager/internal/core/domain"
 	"github.com/amangirdhar210/inventory-manager/internal/core/ports"
 )
@@ -19,11 +20,18 @@ func NewInventoryService(repo ports.ProductRepository, notifier ports.Notifier) 
 	}
 }
 
-func (invService *inventoryService) AddProduct(name string, price float64, quantity int) (*domain.Product, error) {
-	product, err := domain.NewProduct(name, price, quantity)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create new product : %w", err)
+func ProductFieldsAreValid(name string, price float64, quantity int) bool {
+	if len(name) < 2 || price <= 0 || quantity < 0 {
+		return false
 	}
+	return true
+}
+
+func (invService *inventoryService) AddProduct(name string, price float64, quantity int) (*domain.Product, error) {
+	if !ProductFieldsAreValid(name, price, quantity) {
+		return nil, domain.ErrProductInvalid
+	}
+	product := domain.NewProduct(name, price, quantity)
 
 	if err := invService.repo.Save(product); err != nil {
 		return nil, fmt.Errorf("failed to save product: %w ", err)
@@ -41,22 +49,25 @@ func (invService *inventoryService) GetProduct(id string) (*domain.Product, erro
 }
 
 func (invService *inventoryService) SellProductUnits(id string, quantity int) error {
+	if quantity <= 0 {
+		return fmt.Errorf("invalid input quantity")
+	}
 	product, err := invService.repo.FindById(id)
 	if err != nil {
 		return fmt.Errorf("could not find the product for sale: %w", err)
 	}
-	if quantity <= 0 {
-		return fmt.Errorf("invalid input quantity")
-	} else if product.Quantity < quantity {
+
+	if product.Quantity < quantity {
 		return fmt.Errorf("insufficient stock")
 	}
+
 	product.Quantity -= quantity
 
 	if err := invService.repo.Update(product); err != nil {
 		return fmt.Errorf("failed to update product stock after sale: %w", err)
 	}
 
-	if product.IsLowOnStock() {
+	if product.Quantity < config.ThresholdAlertQty {
 		invService.notifier.NotifyLowStock(product)
 	}
 	return nil

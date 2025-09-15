@@ -9,17 +9,17 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func (h *HTTPHandler) AuthMiddleware(next http.Handler) http.Handler {
+func (handler *HTTPHandler) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			h.handleError(w, domain.ErrUnauthorized)
+			handleError(w, domain.ErrUnauthorized)
 			return
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		if tokenString == authHeader {
-			h.handleError(w, domain.ErrUnauthorized)
+			handleError(w, domain.ErrUnauthorized)
 			return
 		}
 
@@ -29,7 +29,7 @@ func (h *HTTPHandler) AuthMiddleware(next http.Handler) http.Handler {
 		})
 
 		if err != nil {
-			h.handleError(w, domain.ErrUnauthorized)
+			handleError(w, domain.ErrUnauthorized)
 			return
 		}
 
