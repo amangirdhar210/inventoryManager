@@ -9,7 +9,3 @@ type ProductRepository interface {
 	Update(product *domain.Product) error
 	DeleteById(id string) error
 }
-
-type Notifier interface {
-	NotifyLowStock(product *domain.Product)
-}
