@@ -22,144 +22,144 @@ func NewHTTPHandler(invService service.InventoryService, authService service.Aut
 	}
 }
 
-func (h *HTTPHandler) Logout(w http.ResponseWriter, r *http.Request) {
-	h.respondWithJSON(w, http.StatusOK, map[string]string{"message": "logout successful"})
+func (handler *HTTPHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	handler.respondWithJSON(w, http.StatusOK, map[string]string{"message": "logout successful"})
 }
 
-func (h *HTTPHandler) Login(w http.ResponseWriter, r *http.Request) {
+func (handler *HTTPHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		h.respondWithError(w, http.StatusBadRequest, "Invalid request body")
+		handler.respondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
-	token, err := h.authService.Login(req.Email, req.Password)
+	token, err := handler.authService.Login(req.Email, req.Password)
 	if err != nil {
-		h.handleError(w, err)
+		handler.handleError(w, err)
 		return
 	}
 
-	h.respondWithJSON(w, http.StatusOK, map[string]string{"token": token})
+	handler.respondWithJSON(w, http.StatusOK, map[string]string{"token": token})
 }
 
-func (h *HTTPHandler) AddProduct(w http.ResponseWriter, r *http.Request) {
+func (handler *HTTPHandler) AddProduct(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Name     string  `json:"name"`
 		Price    float64 `json:"price"`
 		Quantity int     `json:"quantity"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		h.respondWithError(w, http.StatusBadRequest, "Invalid request body")
+		handler.respondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
-	product, err := h.inventoryService.AddProduct(req.Name, req.Price, req.Quantity)
+	product, err := handler.inventoryService.AddProduct(req.Name, req.Price, req.Quantity)
 	if err != nil {
-		h.handleError(w, err)
+		handler.handleError(w, err)
 		return
 	}
 
-	h.respondWithJSON(w, http.StatusCreated, product)
+	handler.respondWithJSON(w, http.StatusCreated, product)
 }
 
-func (h *HTTPHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
+func (handler *HTTPHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	product, err := h.inventoryService.GetProduct(id)
+	product, err := handler.inventoryService.GetProduct(id)
 	if err != nil {
-		h.handleError(w, err)
+		handler.handleError(w, err)
 		return
 	}
-	h.respondWithJSON(w, http.StatusOK, product)
+	handler.respondWithJSON(w, http.StatusOK, product)
 }
 
-func (h *HTTPHandler) SellProductUnits(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
-	var req struct {
-		Quantity int `json:"quantity"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		h.respondWithError(w, http.StatusBadRequest, "Invalid request body")
-		return
-	}
-	err := h.inventoryService.SellProductUnits(id, req.Quantity)
-	if err != nil {
-		h.handleError(w, err)
-		return
-	}
-	h.respondWithJSON(w, http.StatusOK, map[string]string{"message": "sell request processed successfully"})
-}
-
-func (h *HTTPHandler) RestockProduct(w http.ResponseWriter, r *http.Request) {
+func (handler *HTTPHandler) SellProductUnits(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	var req struct {
 		Quantity int `json:"quantity"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		h.respondWithError(w, http.StatusBadRequest, "Invalid request body")
+		handler.respondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
-	err := h.inventoryService.RestockProduct(id, req.Quantity)
+	err := handler.inventoryService.SellProductUnits(id, req.Quantity)
 	if err != nil {
-		h.handleError(w, err)
+		handler.handleError(w, err)
 		return
 	}
-	h.respondWithJSON(w, http.StatusOK, map[string]string{"message": "restock request processed successfully."})
+	handler.respondWithJSON(w, http.StatusOK, map[string]string{"message": "sell request processed successfully"})
 }
 
-func (h *HTTPHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
+func (handler *HTTPHandler) RestockProduct(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	var req struct {
+		Quantity int `json:"quantity"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		handler.respondWithError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+	err := handler.inventoryService.RestockProduct(id, req.Quantity)
+	if err != nil {
+		handler.handleError(w, err)
+		return
+	}
+	handler.respondWithJSON(w, http.StatusOK, map[string]string{"message": "restock request processed successfully."})
+}
+
+func (handler *HTTPHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	err := h.inventoryService.DeleteProduct(id)
+	err := handler.inventoryService.DeleteProduct(id)
 	if err != nil {
-		h.handleError(w, err)
+		handler.handleError(w, err)
 		return
 	}
-	h.respondWithJSON(w, http.StatusOK, map[string]string{"message": "product deleted successfully"})
+	handler.respondWithJSON(w, http.StatusOK, map[string]string{"message": "product deleted successfully"})
 }
 
-func (h *HTTPHandler) UpdateProductPrice(w http.ResponseWriter, r *http.Request) {
+func (handler *HTTPHandler) UpdateProductPrice(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	var req struct {
 		NewPrice float64 `json:"price"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		h.respondWithError(w, http.StatusBadRequest, "Invalid request body")
+		handler.respondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
-	err := h.inventoryService.UpdateProductPrice(id, req.NewPrice)
+	err := handler.inventoryService.UpdateProductPrice(id, req.NewPrice)
 	if err != nil {
-		h.handleError(w, err)
+		handler.handleError(w, err)
 		return
 	}
-	h.respondWithJSON(w, http.StatusOK, map[string]string{"message": "product price updated successfully"})
+	handler.respondWithJSON(w, http.StatusOK, map[string]string{"message": "product price updated successfully"})
 }
 
-func (h *HTTPHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) {
-	products, err := h.inventoryService.GetAllProducts()
+func (handler *HTTPHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) {
+	products, err := handler.inventoryService.GetAllProducts()
 	if err != nil {
-		h.handleError(w, err)
+		handler.handleError(w, err)
 		return
 	}
-	h.respondWithJSON(w, http.StatusOK, products)
+	handler.respondWithJSON(w, http.StatusOK, products)
 }
 
-func (h *HTTPHandler) GetInventoryValue(w http.ResponseWriter, r *http.Request) {
-	value, err := h.inventoryService.GetInventoryValue()
+func (handler *HTTPHandler) GetInventoryValue(w http.ResponseWriter, r *http.Request) {
+	value, err := handler.inventoryService.GetInventoryValue()
 	if err != nil {
-		h.handleError(w, err)
+		handler.handleError(w, err)
 		return
 	}
-	h.respondWithJSON(w, http.StatusOK, map[string]float64{"inventory_value": value})
+	handler.respondWithJSON(w, http.StatusOK, map[string]float64{"inventory_value": value})
 }
 
 func (h *HTTPHandler) respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
