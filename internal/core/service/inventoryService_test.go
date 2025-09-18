@@ -121,7 +121,7 @@ func TestInventoryService_AddProduct(t *testing.T) {
 
 func TestInventoryService_GetProduct(t *testing.T) {
 	repo := newMockProductRepository()
-	p, _ := domain.NewProduct("Test Book", 25.50, 50)
+	p := domain.NewProduct("Test Book", 25.50, 50)
 	repo.Save(p)
 
 	tests := []struct {
@@ -150,7 +150,7 @@ func TestInventoryService_GetProduct(t *testing.T) {
 }
 
 func TestInventoryService_SellProductUnits(t *testing.T) {
-	p, _ := domain.NewProduct("Monitor", 300, 20)
+	p := domain.NewProduct("Monitor", 300, 20)
 
 	tests := []struct {
 		name           string
@@ -205,7 +205,7 @@ func TestInventoryService_SellProductUnits(t *testing.T) {
 }
 
 func TestInventoryService_RestockProduct(t *testing.T) {
-	p, _ := domain.NewProduct("Keyboard", 75, 10)
+	p := domain.NewProduct("Keyboard", 75, 10)
 
 	tests := []struct {
 		name          string
@@ -244,8 +244,8 @@ func TestInventoryService_RestockProduct(t *testing.T) {
 }
 
 func TestInventoryService_GetAllProducts(t *testing.T) {
-	p1, _ := domain.NewProduct("Product A", 10, 1)
-	p2, _ := domain.NewProduct("Product B", 20, 2)
+	p1 := domain.NewProduct("Product A", 10, 1)
+	p2 := domain.NewProduct("Product B", 20, 2)
 
 	tests := []struct {
 		name       string
@@ -300,7 +300,7 @@ func TestInventoryService_GetAllProducts(t *testing.T) {
 }
 
 func TestInventoryService_DeleteProduct(t *testing.T) {
-	p, _ := domain.NewProduct("ToDelete", 1, 1)
+	p := domain.NewProduct("ToDelete", 1, 1)
 
 	tests := []struct {
 		name      string
@@ -357,8 +357,8 @@ func TestInventoryService_DeleteProduct(t *testing.T) {
 }
 
 func TestInventoryService_GetInventoryValue(t *testing.T) {
-	p1, _ := domain.NewProduct("Valuable", 10.50, 10)
-	p2, _ := domain.NewProduct("Cheap", 1.00, 100)
+	p1 := domain.NewProduct("Valuable", 10.50, 10)
+	p2 := domain.NewProduct("Cheap", 1.00, 100)
 
 	tests := []struct {
 		name      string
