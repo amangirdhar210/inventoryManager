@@ -21,9 +21,9 @@ func NewHTTPServer(inventoryService service.InventoryService, authService servic
 
 	apiRouter.HandleFunc("/products", inventoryHandler.AddProduct).Methods("POST")
 	apiRouter.HandleFunc("/products/{id}", inventoryHandler.GetProduct).Methods("GET")
-	apiRouter.HandleFunc("/products/{id}/sell", inventoryHandler.SellProductUnits).Methods("POST")
-	apiRouter.HandleFunc("/products/{id}/restock", inventoryHandler.RestockProduct).Methods("POST")
-	apiRouter.HandleFunc("/products/{id}/price", inventoryHandler.UpdateProductPrice).Methods("PUT")
+	apiRouter.HandleFunc("/products/{id}/sell", inventoryHandler.SellProductUnits).Methods("PATCH")
+	apiRouter.HandleFunc("/products/{id}/restock", inventoryHandler.RestockProduct).Methods("PATCH")
+	apiRouter.HandleFunc("/products/{id}/price", inventoryHandler.UpdateProductPrice).Methods("PATCH")
 	apiRouter.HandleFunc("/products/{id}", inventoryHandler.DeleteProduct).Methods("DELETE")
 	apiRouter.HandleFunc("/products", inventoryHandler.GetAllProducts).Methods("GET")
 	apiRouter.HandleFunc("/inventory/value", inventoryHandler.GetInventoryValue).Methods("GET")
