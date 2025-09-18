@@ -65,7 +65,8 @@ func Test_FindById_WhenUnexpectedError(t *testing.T) {
 
 	rows := sqlmock.NewRows([]string{"id", "name", "price", "quantity"})
 
-	mock.ExpectQuery("SELECT id, name, price, quantity FROM products where id=?").WithArgs("test-id").WillReturnError(errors.New("Unexpected DB error")).WillReturnRows(rows)
+	mock.ExpectQuery("SELECT id, name, price, quantity FROM products where id=?").WithArgs("test-id").
+		WillReturnError(errors.New("Unexpected DB error")).WillReturnRows(rows)
 
 	product, err := productRepo.FindById("test-id")
 
@@ -169,7 +170,8 @@ func Test_Update_ErrorPreparingStatement(t *testing.T) {
 	if err != nil {
 		log.Fatal("error setting up repo", err)
 	}
-	mock.ExpectPrepare(regexp.QuoteMeta("UPDATE products SET name=?, price=?, quantity=? WHERE id =?")).WillReturnError(errors.New("error preparing statement"))
+	mock.ExpectPrepare(regexp.QuoteMeta("UPDATE products SET name=?, price=?, quantity=? WHERE id =?")).
+		WillReturnError(errors.New("error preparing statement"))
 	UpdatedProduct := domain.Product{
 		Id:       "existing-id",
 		Name:     "product-name",
