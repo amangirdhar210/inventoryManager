@@ -11,4 +11,5 @@ var (
 	ErrUnauthorized       = errors.New("unauthorized")
 	ErrTokenInvalid       = errors.New("token is invalid")
 	ErrTokenGeneration    = errors.New("something went wrong while generating token")
+	ErrManagerNotFound    = errors.New("no manager found")
 )
