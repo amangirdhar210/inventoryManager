@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"database/sql/driver"
 	"errors"
 	"log"
 	"regexp"
@@ -199,7 +198,8 @@ func Test_Update_ErrorExecutingStatement(t *testing.T) {
 		Price:    200,
 		Quantity: 5,
 	}
-	mock.ExpectPrepare(regexp.QuoteMeta("UPDATE products SET name=?, price=?, quantity=? WHERE id =?")).ExpectExec().WithArgs(UpdatedProduct.Name, UpdatedProduct.Price, UpdatedProduct.Quantity, UpdatedProduct.Id)
+	mock.ExpectPrepare(regexp.QuoteMeta("UPDATE products SET name=?, price=?, quantity=? WHERE id =?")).ExpectExec().
+		WithArgs(UpdatedProduct.Name, UpdatedProduct.Price, UpdatedProduct.Quantity, UpdatedProduct.Id)
 
 	err = productRepo.Update(&UpdatedProduct)
 	require.Error(t, err)
@@ -256,14 +256,11 @@ func Test_ListAll_SuccessCase(t *testing.T) {
 	productRepo := NewProductRepository(db)
 
 	rows := sqlmock.NewRows([]string{"id", "name", "price", "quantity"})
-
-	rows.AddRows(
-		[]driver.Value{"TestId1", "testProduct1", 10.10, 10},
-		[]driver.Value{"TestId2", "testProduct2", 20.10, 20},
-		[]driver.Value{"TestId3", "testProduct3", 30.10, 30},
-		[]driver.Value{"TestId4", "testProduct4", 40.10, 40},
-		[]driver.Value{"TestId5", "testProduct5", 50.10, 50},
-	)
+	rows.AddRow("TestId1", "testProduct1", 10.10, 10).
+		AddRow("TestId2", "testProduct2", 20.10, 20).
+		AddRow("TestId3", "testProduct3", 30.10, 30).
+		AddRow("TestId4", "testProduct4", 40.10, 40).
+		AddRow("TestId5", "testProduct5", 50.10, 50)
 
 	mock.ExpectQuery("SELECT id, name, price, quantity FROM products").WillReturnRows(rows)
 	products, err := productRepo.ListAll()
