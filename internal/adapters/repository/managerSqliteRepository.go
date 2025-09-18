@@ -23,7 +23,7 @@ func (repo *managerRepository) FindByEmail(email string) (*domain.Manager, error
 	err := row.Scan(&manager.Id, &manager.Email, &manager.Password)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, domain.ErrInvalidCredentials
+			return nil, domain.ErrManagerNotFound
 		}
 		return nil, domain.ErrRepository
 	}
