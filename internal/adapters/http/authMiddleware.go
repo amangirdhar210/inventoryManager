@@ -24,7 +24,7 @@ func (handler *HTTPHandler) AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		claims := &jwt.RegisteredClaims{}
-		_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (any, error) {
 			return []byte(config.JWTSecretKey), nil
 		})
 

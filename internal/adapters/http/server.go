@@ -2,7 +2,6 @@ package http
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/amangirdhar210/inventory-manager/internal/core/service"
 	"github.com/gorilla/mux"
@@ -29,10 +28,8 @@ func NewHTTPServer(inventoryService service.InventoryService, authService servic
 	apiRouter.HandleFunc("/inventory/value", inventoryHandler.GetInventoryValue).Methods("GET")
 
 	server := &http.Server{
-		Handler:      router,
-		Addr:         ":8080",
-		WriteTimeout: 10 * time.Second,
-		ReadTimeout:  10 * time.Second,
+		Handler: router,
+		Addr:    ":8080",
 	}
 
 	return server

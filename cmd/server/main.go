@@ -29,8 +29,8 @@ func main() {
 	inventoryService := service.NewInventoryService(productRepo, logNotifier)
 	authService := service.NewAuthService(managerRepo, tokenGenerator)
 
-	HTTPServer := http.NewHTTPServer(inventoryService, authService)
+	server := http.NewHTTPServer(inventoryService, authService)
 
 	fmt.Println("Inventory Management Server starting on port 8080....")
-	log.Fatal(HTTPServer.ListenAndServe())
+	log.Fatal(server.ListenAndServe())
 }
