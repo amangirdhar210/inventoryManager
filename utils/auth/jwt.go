@@ -7,8 +7,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// var _ ports.TokenGenerator = (*JWTGenerator)(nil)
-
 type JWTGenerator struct {
 	secretKey string
 }
@@ -22,7 +20,7 @@ func (generator *JWTGenerator) GenerateToken(manager *domain.Manager) (string, e
 		Issuer:    "inventory-manager",
 		Subject:   manager.Id,
 		Audience:  jwt.ClaimStrings{"managers"},
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 1)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	}
 
