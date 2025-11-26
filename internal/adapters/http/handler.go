@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/amangirdhar210/inventory-manager/internal/core/service"
@@ -25,6 +26,14 @@ func (handler *HTTPHandler) Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (handler *HTTPHandler) Login(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 	var req struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -33,6 +42,7 @@ func (handler *HTTPHandler) Login(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
+	log.Printf("%+v", req)
 
 	token, err := handler.authService.Login(req.Email, req.Password)
 	if err != nil {

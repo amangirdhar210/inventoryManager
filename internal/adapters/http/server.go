@@ -12,7 +12,7 @@ func NewHTTPServer(inventoryService service.InventoryService, authService servic
 
 	router := mux.NewRouter()
 
-	router.HandleFunc("/login", inventoryHandler.Login).Methods("POST")
+	router.Handle("/login", withCORS(http.HandlerFunc(inventoryHandler.Login))).Methods("POST", "OPTIONS")
 	router.HandleFunc("/logout", inventoryHandler.Logout).Methods("POST")
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
