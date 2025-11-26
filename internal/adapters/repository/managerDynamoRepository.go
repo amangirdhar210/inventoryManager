@@ -32,7 +32,7 @@ func (repo *managerDynamoRepository) FindByEmail(email string) (*domain.Manager,
 		},
 	})
 	if err != nil {
-		return nil, domain.ErrRepository
+		return nil, err
 	}
 
 	if len(result.Items) == 0 {
@@ -42,7 +42,7 @@ func (repo *managerDynamoRepository) FindByEmail(email string) (*domain.Manager,
 	var manager domain.Manager
 	err = attributevalue.UnmarshalMap(result.Items[0], &manager)
 	if err != nil {
-		return nil, domain.ErrRepository
+		return nil, err
 	}
 
 	return &manager, nil

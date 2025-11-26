@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"github.com/amangirdhar210/inventory-manager/config"
@@ -14,7 +15,7 @@ func handler(ctx context.Context, request events.APIGatewayCustomAuthorizerReque
 	token := request.AuthorizationToken
 
 	if token == "" || !strings.HasPrefix(token, "Bearer ") {
-		return generatePolicy("", "Deny", request.MethodArn), nil
+		return events.APIGatewayCustomAuthorizerResponse{}, errors.New("Unauthorized")
 	}
 
 	tokenString := strings.TrimPrefix(token, "Bearer ")
@@ -25,7 +26,7 @@ func handler(ctx context.Context, request events.APIGatewayCustomAuthorizerReque
 	})
 
 	if err != nil || !parsedToken.Valid {
-		return generatePolicy("", "Deny", request.MethodArn), nil
+		return events.APIGatewayCustomAuthorizerResponse{}, errors.New("Unauthorized")
 	}
 
 	principalID := claims.Subject
@@ -33,7 +34,11 @@ func handler(ctx context.Context, request events.APIGatewayCustomAuthorizerReque
 		principalID = "user"
 	}
 
-	return generatePolicy(principalID, "Allow", request.MethodArn), nil
+	parts := strings.Split(request.MethodArn, ":")
+	apiGatewayArnParts := strings.Split(parts[5], "/")
+	resource := strings.Join(parts[:5], ":") + ":" + apiGatewayArnParts[0] + "/*/*"
+
+	return generatePolicy(principalID, "Allow", resource), nil
 }
 
 func generatePolicy(principalID, effect, resource string) events.APIGatewayCustomAuthorizerResponse {

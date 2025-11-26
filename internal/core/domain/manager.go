@@ -1,7 +1,7 @@
 package domain
 
 type Manager struct {
-	Id       string
-	Email    string
-	Password string
+	Id       string `dynamodbav:"id"`
+	Email    string `dynamodbav:"email"`
+	Password string `dynamodbav:"password"`
 }

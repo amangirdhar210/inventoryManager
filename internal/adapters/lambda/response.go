@@ -41,7 +41,7 @@ func HandleError(err error) (events.APIGatewayProxyResponse, error) {
 		return RespondWithError(http.StatusNotFound, "Product not found")
 	case domain.ErrProductInvalid:
 		return RespondWithError(http.StatusBadRequest, "Invalid product data")
-	case domain.ErrManagerNotFound:
+	case domain.ErrManagerNotFound, domain.ErrInvalidCredentials:
 		return RespondWithError(http.StatusUnauthorized, "Invalid credentials")
 	case domain.ErrUnauthorized:
 		return RespondWithError(http.StatusUnauthorized, "Unauthorized")

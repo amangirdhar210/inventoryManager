@@ -5,10 +5,10 @@ import (
 )
 
 type Product struct {
-	Id       string
-	Name     string
-	Price    float64
-	Quantity int
+	Id       string  `dynamodbav:"id"`
+	Name     string  `dynamodbav:"name"`
+	Price    float64 `dynamodbav:"price"`
+	Quantity int     `dynamodbav:"quantity"`
 }
 
 func NewProduct(name string, price float64, quantity int) *Product {
