@@ -67,7 +67,7 @@ func (invService *inventoryService) SellProductUnits(id string, quantity int) er
 		return fmt.Errorf("failed to update product stock after sale: %w", err)
 	}
 
-	if product.Quantity < config.ThresholdAlertQty {
+	if product.Quantity < config.GetThresholdAlertQty() {
 		invService.notifier.NotifyLowStock(product)
 	}
 	return nil

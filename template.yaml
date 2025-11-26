@@ -1,0 +1,240 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Inventory Management System - Serverless Application
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: provided.al2023
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        PRODUCTS_TABLE_NAME: !Ref ProductsTable
+        MANAGERS_TABLE_NAME: !Ref ManagersTable
+        JWT_SECRET_KEY: myJWTsecret@1234
+        THRESHOLD_ALERT_QTY: 10
+        ADMIN_EMAIL: aman@wg.com
+        ADMIN_PASSWORD: "1234567"
+
+Resources:
+  ProductsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Products
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+  ManagersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Managers
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: email-index
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  InventoryApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET,POST,PATCH,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowOrigin: "'*'"
+      Auth:
+        DefaultAuthorizer: LambdaTokenAuthorizer
+        Authorizers:
+          LambdaTokenAuthorizer:
+            FunctionArn: !GetAtt AuthorizerFunction.Arn
+
+  AuthorizerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./bin/authorizer.zip
+      Handler: bootstrap
+      Policies:
+        - AWSLambdaBasicExecutionRole
+
+  LoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./bin/login.zip
+      Handler: bootstrap
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBReadPolicy:
+            TableName: !Ref ManagersTable
+      Events:
+        Login:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InventoryApi
+            Path: /login
+            Method: POST
+            Auth:
+              Authorizer: NONE
+
+  AddProductFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./bin/addProduct.zip
+      Handler: bootstrap
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProductsTable
+      Events:
+        AddProduct:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InventoryApi
+            Path: /api/products
+            Method: POST
+
+  GetProductFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./bin/getProduct.zip
+      Handler: bootstrap
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBReadPolicy:
+            TableName: !Ref ProductsTable
+      Events:
+        GetProduct:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InventoryApi
+            Path: /api/products/{id}
+            Method: GET
+
+  GetAllProductsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./bin/getAllProducts.zip
+      Handler: bootstrap
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBReadPolicy:
+            TableName: !Ref ProductsTable
+      Events:
+        GetAllProducts:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InventoryApi
+            Path: /api/products
+            Method: GET
+
+  SellProductFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./bin/sellProduct.zip
+      Handler: bootstrap
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProductsTable
+      Events:
+        SellProduct:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InventoryApi
+            Path: /api/products/{id}/sell
+            Method: PATCH
+
+  RestockProductFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./bin/restockProduct.zip
+      Handler: bootstrap
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProductsTable
+      Events:
+        RestockProduct:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InventoryApi
+            Path: /api/products/{id}/restock
+            Method: PATCH
+
+  UpdatePriceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./bin/updatePrice.zip
+      Handler: bootstrap
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProductsTable
+      Events:
+        UpdatePrice:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InventoryApi
+            Path: /api/products/{id}/price
+            Method: PATCH
+
+  DeleteProductFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./bin/deleteProduct.zip
+      Handler: bootstrap
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProductsTable
+      Events:
+        DeleteProduct:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InventoryApi
+            Path: /api/products/{id}
+            Method: DELETE
+
+  InventoryValueFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./bin/inventoryValue.zip
+      Handler: bootstrap
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBReadPolicy:
+            TableName: !Ref ProductsTable
+      Events:
+        InventoryValue:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InventoryApi
+            Path: /api/inventory/value
+            Method: GET
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub "https://${InventoryApi}.execute-api.${AWS::Region}.amazonaws.com/prod/"
+  ProductsTableName:
+    Description: DynamoDB Products Table Name
+    Value: !Ref ProductsTable
+  ManagersTableName:
+    Description: DynamoDB Managers Table Name
+    Value: !Ref ManagersTable
