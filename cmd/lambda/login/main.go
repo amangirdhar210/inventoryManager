@@ -6,17 +6,13 @@ import (
 
 	"github.com/amangirdhar210/inventory-manager/config"
 	"github.com/amangirdhar210/inventory-manager/internal/adapters/lambda"
+	"github.com/amangirdhar210/inventory-manager/internal/adapters/lambda/dto"
 	"github.com/amangirdhar210/inventory-manager/internal/adapters/repository"
 	"github.com/amangirdhar210/inventory-manager/internal/core/service"
 	"github.com/amangirdhar210/inventory-manager/utils/auth"
 	"github.com/aws/aws-lambda-go/events"
 	awslambda "github.com/aws/aws-lambda-go/lambda"
 )
-
-type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
 
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	client, err := lambda.GetDynamoClient(ctx)
@@ -28,7 +24,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	tokenGenerator := auth.NewJWTGenerator(config.GetJWTSecretKey())
 	authService := service.NewAuthService(managerRepo, tokenGenerator)
 
-	var req LoginRequest
+	var req dto.LoginRequest
 	if err := json.Unmarshal([]byte(request.Body), &req); err != nil {
 		return lambda.RespondWithError(400, "Invalid request body")
 	}
