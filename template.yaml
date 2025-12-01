@@ -68,15 +68,17 @@ Resources:
   AuthorizerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./bin/authorizer.zip
+      CodeUri: ./cmd/lambda/authorizer
       Handler: bootstrap
       Policies:
         - AWSLambdaBasicExecutionRole
+    Metadata:
+      BuildMethod: go1.x
 
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./bin/login.zip
+      CodeUri: ./cmd/lambda/login
       Handler: bootstrap
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -91,11 +93,13 @@ Resources:
             Method: POST
             Auth:
               Authorizer: NONE
+    Metadata:
+      BuildMethod: go1.x
 
   AddProductFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./bin/addProduct.zip
+      CodeUri: ./cmd/lambda/addProduct
       Handler: bootstrap
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -108,11 +112,13 @@ Resources:
             RestApiId: !Ref InventoryApi
             Path: /api/products
             Method: POST
+    Metadata:
+      BuildMethod: go1.x
 
   GetProductFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./bin/getProduct.zip
+      CodeUri: ./cmd/lambda/getProduct
       Handler: bootstrap
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -125,11 +131,13 @@ Resources:
             RestApiId: !Ref InventoryApi
             Path: /api/products/{id}
             Method: GET
+    Metadata:
+      BuildMethod: go1.x
 
   GetAllProductsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./bin/getAllProducts.zip
+      CodeUri: ./cmd/lambda/getAllProducts
       Handler: bootstrap
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -142,11 +150,13 @@ Resources:
             RestApiId: !Ref InventoryApi
             Path: /api/products
             Method: GET
+    Metadata:
+      BuildMethod: go1.x
 
   SellProductFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./bin/sellProduct.zip
+      CodeUri: ./cmd/lambda/sellProduct
       Handler: bootstrap
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -159,11 +169,13 @@ Resources:
             RestApiId: !Ref InventoryApi
             Path: /api/products/{id}/sell
             Method: PATCH
+    Metadata:
+      BuildMethod: go1.x
 
   RestockProductFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./bin/restockProduct.zip
+      CodeUri: ./cmd/lambda/restockProduct
       Handler: bootstrap
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -176,11 +188,13 @@ Resources:
             RestApiId: !Ref InventoryApi
             Path: /api/products/{id}/restock
             Method: PATCH
+    Metadata:
+      BuildMethod: go1.x
 
   UpdatePriceFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./bin/updatePrice.zip
+      CodeUri: ./cmd/lambda/updatePrice
       Handler: bootstrap
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -193,11 +207,13 @@ Resources:
             RestApiId: !Ref InventoryApi
             Path: /api/products/{id}/price
             Method: PATCH
+    Metadata:
+      BuildMethod: go1.x
 
   DeleteProductFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./bin/deleteProduct.zip
+      CodeUri: ./cmd/lambda/deleteProduct
       Handler: bootstrap
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -210,11 +226,13 @@ Resources:
             RestApiId: !Ref InventoryApi
             Path: /api/products/{id}
             Method: DELETE
+    Metadata:
+      BuildMethod: go1.x
 
   InventoryValueFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./bin/inventoryValue.zip
+      CodeUri: ./cmd/lambda/inventoryValue
       Handler: bootstrap
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -227,6 +245,8 @@ Resources:
             RestApiId: !Ref InventoryApi
             Path: /api/inventory/value
             Method: GET
+    Metadata:
+      BuildMethod: go1.x
 
 Outputs:
   ApiEndpoint:
